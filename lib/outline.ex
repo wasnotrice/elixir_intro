@@ -7,7 +7,7 @@ defmodule Outline do
       string: "🚀👨‍🚀⭐",
       list: [:one, :two, 3],
       tuple: {:ok, "go"},
-      function: fn x -> "Hi, " <> x end,
+      function: fn x -> 2 * x end,
       keyword: [a: 1, b: 2, b: "two"],
       map: %{a: 1, b: 2, c: 3}
     ]
