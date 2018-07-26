@@ -1,36 +1,39 @@
 defmodule Outline do
-  def intro do
+  def intro(13) do
     [
-      created: "???",
-      bdfl: "José Valim",
-      characteristics: [
-        :dynamic,
-        :compiled,
-        :targets_beam
+      elixir: [
+        created: "???",
+        bdfl: "José Valim",
+        characteristics: [
+          :dynamic,
+          :compiled,
+          :targets_beam,
+          :functional,
+          :immutable,
+          :actor_model,
+          :otp
+        ],
+        influences: [
+          :erlang,
+          :ruby,
+          :clojure,
+          :lisp
+        ]
       ],
-      influences: [
-        :erlang,
-        :ruby,
-        :clojure,
-        :lisp
-      ]
-    ]
-  end
-
-  def erlang("13") do
-    [
-      created: 1986,
-      characteristics: [
-        :dynamic,
-        :compiled,
-        :targets_beam,
-        :functional,
-        :immutable,
-        :actor_model,
-        :otp
-      ],
-      influences: [
-        :prolog
+      erlang: [
+        created: 1986,
+        characteristics: [
+          :dynamic,
+          :compiled,
+          :targets_beam,
+          :functional,
+          :immutable,
+          :actor_model,
+          :otp
+        ],
+        influences: [
+          :prolog
+        ]
       ]
     ]
   end
@@ -96,8 +99,8 @@ defmodule Outline do
     [:each, :map, :reduce, :pipes]
   end
 
-  def processes() do
-    [:spawn, :spawn_link]
+  def processes(30) do
+    [:spawn, :spawn_link, :spawn_monitor]
   end
 
   def tooling do

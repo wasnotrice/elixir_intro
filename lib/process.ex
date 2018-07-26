@@ -23,45 +23,40 @@ defmodule Ping do
     end
   end
 
-  def eternal_ping do
+  def ping do
     receive do
       :ping ->
         IO.inspect(:pong)
-        eternal_ping()
+        ping()
+
+      :echo ->
+        IO.puts("Becoming echo")
+        echo()
     end
   end
 
-  # spawn, spawn_link
+  # spawn, spawn_link, spawn_monitor, redirect
   def echo do
     receive do
       :ping ->
-        IO.inspect(:pong)
-        echo()
+        IO.puts("Becoming ping")
+        ping()
 
-      :crash ->
-        raise "Crashing"
-
-      msg ->
-        IO.puts(inspect(self()) <> " " <> inspect(msg))
-        echo()
-    end
-  end
-
-  def reply do
-    receive do
       :crash ->
         raise "Crashing"
 
       {pid, msg} ->
         send(pid, msg)
-        reply()
+        echo()
 
       msg ->
         IO.puts(inspect(self()) <> " " <> inspect(msg))
-        reply()
+        echo()
     end
   end
+end
 
+defmodule Count do
   @doc """
   Count to a max, keeping the count on the stack
   """
@@ -92,21 +87,20 @@ defmodule Letter do
     |> String.split("", trim: true)
     |> Enum.reject(fn char -> Regex.match?(~r/\s/, char) end)
     |> Enum.map(fn char -> {String.downcase(char), 1} end)
-    |> Enum.reduce(%{}, fn {char, count}, freq ->
-      Map.update(freq, char, count, &(&1 + count))
-    end)
-    |> Enum.sort(fn {_, a}, {_, b} -> a > b end)
   end
 
-  def stream_freq(text) do
-    text
-    |> String.splitter("", trim: true)
-    |> Stream.reject(fn char -> Regex.match?(~r/\s/, char) end)
-    |> Stream.map(fn char -> {String.downcase(char), 1} end)
-    |> Enum.reduce(%{}, fn {char, count}, freq ->
-      Map.update(freq, char, count, &(&1 + count))
+  @doc """
+  Reduce an enum (map or keyword) of {letter, count} pairs into a map with one entry
+  per letter, and the cumulative total
+  """
+  def reduce(freqs, acc \\ %{}) do
+    Enum.reduce(freqs, acc, fn {char, count}, freq ->
+      Map.update(freq, char, count, fn old -> old + count end)
     end)
-    |> Enum.sort(fn {_, a}, {_, b} -> a > b end)
+  end
+
+  def sort(freqs) do
+    Enum.sort(freqs, fn {_, a}, {_, b} -> a > b end)
   end
 
   def time(work) do
@@ -117,9 +111,79 @@ defmodule Letter do
     result
   end
 
-  def parallel_map(enum, func, timeout \\ 10_000) do
+  def parallel_map(enum, func) do
+    timeout = 10_000
+
     enum
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
     |> Enum.map(fn task -> Task.await(task, timeout) end)
+  end
+
+  @doc """
+  Same as `freq/1`, only uses streams to reduce traversals. Still requires a big
+  traversal for the reduce and the sort.
+  """
+  def stream_freq(text) do
+    text
+    |> String.splitter("", trim: true)
+    |> Stream.reject(fn char -> Regex.match?(~r/\s/, char) end)
+    |> Stream.map(fn char -> {String.downcase(char), 1} end)
+  end
+
+  @doc """
+  Calculate sorted frequencies for a single text
+
+  ## Examples
+
+  import Letter
+  texts = texts()
+  time(fn ->
+    parallel_map(texts, fn text -> one(text) end)
+  end)
+  """
+
+  def one(text) do
+    text
+    |> stream_freq()
+    |> reduce()
+    |> sort()
+  end
+
+  @doc """
+  Count all, and re-reduce the results into a single frequency map
+
+  ## Examples
+
+  import Letter
+  texts = texts()
+  time(fn -> all_parallel(texts) end)
+  """
+  def all_parallel(texts) do
+    texts
+    |> parallel_map(fn text ->
+      text |> stream_freq() |> reduce()
+    end)
+    |> Enum.reduce(fn map, reduction -> reduce(map, reduction) end)
+    |> sort()
+  end
+
+  @doc """
+  Count all, and re-reduce the results into a single frequency map
+
+  Single-process
+
+  ## Examples
+
+  import Letter
+  texts = texts()
+  time(fn -> all_single_process(texts) end)
+  """
+  def all_single_process(texts) do
+    texts
+    |> Enum.map(fn text ->
+      text |> stream_freq() |> reduce()
+    end)
+    |> Enum.reduce(fn map, reduction -> reduce(map, reduction) end)
+    |> sort()
   end
 end
