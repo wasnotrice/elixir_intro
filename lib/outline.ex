@@ -1,5 +1,41 @@
 defmodule Outline do
-  def types do
+  def intro do
+    [
+      created: "???",
+      bdfl: "José Valim",
+      characteristics: [
+        :dynamic,
+        :compiled,
+        :targets_beam
+      ],
+      influences: [
+        :erlang,
+        :ruby,
+        :clojure,
+        :lisp
+      ]
+    ]
+  end
+
+  def erlang("13") do
+    [
+      created: 1986,
+      characteristics: [
+        :dynamic,
+        :compiled,
+        :targets_beam,
+        :functional,
+        :immutable,
+        :actor_model,
+        :otp
+      ],
+      influences: [
+        :prolog
+      ]
+    ]
+  end
+
+  def types(10) do
     [
       number: 1,
       atom: :hello,
@@ -13,7 +49,7 @@ defmodule Outline do
     ]
   end
 
-  def operators do
+  def operators(5) do
     [
       :+,
       :++,
@@ -27,7 +63,7 @@ defmodule Outline do
     ]
   end
 
-  def pattern_matching do
+  def pattern_matching(10) do
     [
       :match_operator,
       :destructuring,
@@ -35,12 +71,12 @@ defmodule Outline do
     ]
   end
 
-  def control do
+  def control(5) do
     [
       :case,
       :cond,
       :if,
-      :values
+      :everything_returns_a_value
     ]
   end
 
@@ -48,19 +84,19 @@ defmodule Outline do
     [:keywords, :maps]
   end
 
-  def modules do
+  def modules(10) do
     [:modules, :pattern_matching]
   end
 
-  def recursion do
+  def recursion(:too_much) do
     [:recursion]
   end
 
-  def enum do
+  def enum(:skip) do
     [:each, :map, :reduce, :pipes]
   end
 
-  def processes do
+  def processes() do
     [:spawn, :spawn_link]
   end
 

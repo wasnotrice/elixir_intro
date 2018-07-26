@@ -41,7 +41,7 @@ defmodule Clauses do
     Enum.map(names, &hi/1)
   end
 
-  def hi(_) do
+  def hi("Eric") do
     "Oh, it's you"
   end
 end
