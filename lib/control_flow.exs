@@ -12,7 +12,7 @@ fn name ->
   cond do
     name == "Gary" -> "Howdy, Gary"
     name == "José" -> "Oi, #{name}"
-    true -> "You again?"
+    _ -> "You again?"
   end
 end
 
